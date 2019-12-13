@@ -12,9 +12,13 @@ def webhook_payload():
         p = json.load(f)
     return p
 
+def test_ping(client):
+    assert client.get('/ping').status_code == 200
+
 def test_webhook(client, webhook_payload):
     assert client.post('/webhook', json=webhook_payload).status_code == 200
     assert client.post('/webhook').status_code == 400
+    assert client.post('/webhook', json={}).status_code == 400
+    
 
-def test_ping(client):
-    assert client.get('/ping').status_code == 200
+
