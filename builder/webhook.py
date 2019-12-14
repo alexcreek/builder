@@ -1,7 +1,9 @@
 import sys
+import time
 from flask import Flask, request, jsonify, abort
 
 from builder.project import Project
+from multiprocessing import Process, active_children
 
 app = Flask(__name__)
 
@@ -17,12 +19,15 @@ def webhook():
                     data['after'],
                     data['ref'])
 
-        p.clone_repo()
-        p.cleanup()
+        mp = Process(target=p.process, args=())
+        #mp.daemon = True
+        mp.start()
+        
+        #mp.join()
+        #p.clone_repo()
         # parse build manifest
         # run test
         # build
-
         return jsonify(request.json)
     else:
         abort(400)
