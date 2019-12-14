@@ -1,13 +1,21 @@
 import subprocess
 import tempfile
-import sys
 import shutil
 import time
 import threading
+import uuid
+from logging import getLogger
+
+import builder.utils 
+
+builder.utils.init_logging(__name__, 'asdf.log')
+logger = getLogger(__name__)
 
 class Project(threading.Thread):
     def __init__(self, url, commit, ref):
         super().__init__()
+
+
         self.url = url
         self.commit = commit
         self.branch = ref.split('/')[2]
@@ -19,9 +27,14 @@ class Project(threading.Thread):
 
     def checkout(self):
         self.path = tempfile.mkdtemp()
-        print(self.path, file=sys.stderr, flush=True)
-        a = subprocess.run(["git", "clone", self.url, self.path], capture_output=True)
-        print(a, file=sys.stderr, flush=True)
+        logger.info('what up')
+
+        a = subprocess.run(["git", "clone", self.url, self.path],
+                           capture_output=True, 
+                           text=True)
+
+        logger.info(a.stderr)
+
         time.sleep(5)
 
     def build(self):
