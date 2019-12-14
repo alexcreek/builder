@@ -3,12 +3,19 @@ import tempfile
 import sys
 import shutil
 import time
+import threading
 
-class Project():
+class Project(threading.Thread):
     def __init__(self, url, commit, ref):
+        super().__init__()
         self.url = url
         self.commit = commit
         self.branch = ref.split('/')[2]
+
+    def run(self):
+        self.checkout()
+        self.build()
+        self.cleanup()
 
     def checkout(self):
         self.path = tempfile.mkdtemp()
@@ -25,9 +32,3 @@ class Project():
 
     def cleanup(self):
         shutil.rmtree(self.path)
-
-    def init(self):
-        self.checkout()
-        self.build()
-        self.cleanup()
-        

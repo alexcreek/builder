@@ -1,9 +1,7 @@
 import sys
 import time
 from flask import Flask, request, jsonify, abort
-
 from builder.project import Project
-from threading import Thread
 
 app = Flask(__name__)
 
@@ -18,16 +16,7 @@ def webhook():
         p = Project(data['repository']['clone_url'],
                     data['after'],
                     data['ref'])
-
-        t = Thread(target=p.init, args=())
-        #mp.daemon = True
-        t.start()
-        
-        #mp.join()
-        #p.clone_repo()
-        # parse build manifest
-        # run test
-        # build
+        p.start()
         return jsonify(request.json)
     else:
         abort(400)
