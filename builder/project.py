@@ -12,9 +12,9 @@ class Project():
 
     def checkout(self):
         self.path = tempfile.mkdtemp()
-        print(self.path, file=sys.stderr)
+        print(self.path, file=sys.stderr, flush=True)
         a = subprocess.run(["git", "clone", self.url, self.path], capture_output=True)
-        print(a, file=sys.stderr)
+        print(a, file=sys.stderr, flush=True)
         time.sleep(5)
 
     def build(self):
@@ -26,7 +26,7 @@ class Project():
     def cleanup(self):
         shutil.rmtree(self.path)
 
-    def process(self):
+    def init(self):
         self.checkout()
         self.build()
         self.cleanup()

@@ -3,7 +3,7 @@ import time
 from flask import Flask, request, jsonify, abort
 
 from builder.project import Project
-from multiprocessing import Process, active_children
+from threading import Thread
 
 app = Flask(__name__)
 
@@ -19,9 +19,9 @@ def webhook():
                     data['after'],
                     data['ref'])
 
-        mp = Process(target=p.process, args=())
+        t = Thread(target=p.init, args=())
         #mp.daemon = True
-        mp.start()
+        t.start()
         
         #mp.join()
         #p.clone_repo()
