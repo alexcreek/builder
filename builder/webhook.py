@@ -10,8 +10,8 @@ logger = getLogger('webhook')
 app = Flask(__name__)
 @app.route('/webhook', methods=['POST'])
 def webhook():
+    logger.info('Webhook recieved')
     if request.is_json:
-        logger.info('this is going to flask logs')
         data = request.json
         try:
             p = Project(data['repository']['clone_url'],
@@ -20,6 +20,7 @@ def webhook():
         except KeyError as e:
             logger.error('Paylod missing key %s', e)
             return abort(400)
+        logger.info('Build started')
         p.start()
         return jsonify(request.json)
     return abort(400)
