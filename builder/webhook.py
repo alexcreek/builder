@@ -1,10 +1,10 @@
 from logging import getLogger
 from flask import Flask, request, jsonify, abort
-import builder.utils
+import builder.common
 from builder.project import Project
 
 # setup logging
-builder.utils.setup_logger('webhook')
+builder.common.setup_logger('webhook')
 logger = getLogger('webhook')
 
 app = Flask(__name__)

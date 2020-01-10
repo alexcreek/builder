@@ -7,10 +7,11 @@ from logging import getLogger
 from subprocess import Popen, PIPE
 from git import Repo
 import yaml
-import builder.utils
+import builder.common
 
 # setup logging
-builder.utils.setup_logger(__name__)
+# log to a separate stream than the main thread
+builder.common.setup_logger(__name__)
 logger = getLogger(__name__)
 
 class Project(threading.Thread):
@@ -28,6 +29,11 @@ class Project(threading.Thread):
         self.parse_manifest()
         self.build()
         self.cleanup()
+
+    def log(self):
+        logger.info('Repository: %s', self.url)
+        logger.info('Branch: %s', self.branch)
+        logger.info('Commit: %s', self.commit)
 
     def checkout(self):
         self.path = tempfile.mkdtemp()
@@ -48,10 +54,19 @@ class Project(threading.Thread):
             assert r.active_branch.name == self.branch
         except AssertionError:
             logger.critical('Branch mismatch. %s is not %s',
-                           r.active_branch.name, self.branch)
+                            r.active_branch.name, self.branch)
             logger.critical('Cancelling build')
             sys.exit(1)
 
+    def parse_manifest(self):
+        logger.info('Reading Builderfile')
+        try:
+            with open('{}/Builderfile'.format(self.path), 'r') as f:
+                self.manifest = yaml.load(f, Loader=yaml.Loader)
+        except FileNotFoundError:
+            logger.critical('Builderfile not found in project')
+            logger.critical('Cancelling build')
+            sys.exit(1)
 
     def build(self):
         logger.info('Changing into directory %s', self.path)
@@ -68,25 +83,7 @@ class Project(threading.Thread):
         logger.info('Build complete!')
         os.chdir(ocwd)
 
-    def parse_manifest(self):
-        logger.info('Reading Builderfile')
-        try:
-            with open('{}/Builderfile'.format(self.path), 'r') as f:
-                self.manifest = yaml.load(f, Loader=yaml.Loader)
-        except FileNotFoundError:
-            logger.critical('Builderfile not found in project')
-            logger.critical('Cancelling build')
-            sys.exit(1)
-
-
-    def test(self):
-        pass
-
     def cleanup(self):
         logger.info('Deleting project directory: %s', self.path)
         shutil.rmtree(self.path)
-
-    def log(self):
-        logger.info('Repository: %s', self.url)
-        logger.info('Branch: %s', self.branch)
-        logger.info('Commit: %s', self.commit)
+        
