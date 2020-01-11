@@ -12,6 +12,12 @@ def webhook_payload():
         p = json.load(f)
     return p
 
+@pytest.fixture
+def github_ping_payload():
+    with open('tests/github_ping.json', 'r') as f:
+        p = json.load(f)
+    return p
+
 def test_ping(client):
     assert client.get('/ping').status_code == 200
 
@@ -21,3 +27,6 @@ def test_webhook(client, webhook_payload):
  #   assert client.post('/webhook', json=webhook_payload).status_code == 200
     assert client.post('/webhook').status_code == 400
     assert client.post('/webhook', json={}).status_code == 400
+
+def test_github_ping(client, github_ping_payload):
+    assert client.post('/webhook', json=github_ping_payload).status_code == 200
