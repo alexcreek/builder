@@ -1,3 +1,5 @@
+import os
+import hmac
 from logging import getLogger
 from flask import Flask, request, jsonify, abort
 import builder.common
@@ -12,6 +14,7 @@ app = Flask(__name__)
 def webhook():
     logger.info('Webhook recieved')
     if request.is_json:
+        verify_signature(request)
         data = request.json
         # Attempt processing github pings first
         try:
@@ -45,3 +48,10 @@ def build(url, commit, branch):
 # this might need to do something someday
 def github_ping(zen, hookid, testurl):
     logger.info('Github ping recieved')
+
+def verify_signature(payload):
+    h = hmac.new(os.environb[b'SECRET'], digestmod='sha1')
+    h.update(payload.data)
+    sig = "sha1=%s" % h.hexdigest()
+    if not hmac.compare_digest(sig, payload.headers.get('X-Hub-Signature')):
+        return abort(500)
