@@ -52,6 +52,5 @@ def github_ping(zen, hookid, testurl):
 def verify_signature(payload):
     h = hmac.new(os.environb[b'SECRET'], digestmod='sha1')
     h.update(payload.data)
-    sig = "sha1=%s" % h.hexdigest()
-    if not hmac.compare_digest(sig, payload.headers.get('X-Hub-Signature')):
+    if not hmac.compare_digest(h.hexdigest(), payload.headers.get('X-Hub-Signature')[1]):
         return abort(500)
