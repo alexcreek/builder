@@ -1,7 +1,19 @@
+import os
 import json
 import pytest
 from flask import request
+from werkzeug.exceptions import InternalServerError
 from builder import webhook
+
+os.environ['SECRET'] = 'burrow'
+
+# https://pytest-flask.readthedocs.io/en/latest/features.html?highlight=headers#request-ctx-request-context
+
+class MockRequest():
+    def __init__(self, data, headers):
+        self.data = json.dumps(data).encode('utf-8')
+        self.headers = headers
+
 
 @pytest.fixture
 def app():
@@ -22,17 +34,25 @@ def github_ping_payload():
 def test_ping(client):
     assert client.get('/ping').status_code == 200
 
-def test_webhook(client, webhook_payload):
-#  This has turned into an integration test.
-#  Disabling for the time being
-#   assert client.post('/webhook', json=webhook_payload).status_code == 200
+def test_webhook_requires_json(client, webhook_payload):
     assert client.post('/webhook').status_code == 400
-    assert client.post('/webhook', json={}).status_code == 400
+
+def test_verify_signature(webhook_payload):
+    req = MockRequest(webhook_payload, {'X-Hub-Signature': 'sha1=25a42fe910908e2b1e7bf5d439c1652adb22efb6'})
+    webhook.verify_signature(req)
+
+    with pytest.raises(InternalServerError) as e:
+        bad_req = MockRequest(webhook_payload, {'X-Hub-Signature': 'sha1=123456'})
+        webhook.verify_signature(bad_req)
+    assert e.type == InternalServerError
 
 def test_github_ping(client, github_ping_payload):
-    assert client.post('/webhook', json=github_ping_payload).status_code == 200
+    assert client.post('/webhook', json=github_ping_payload,
+                       headers=[('X-Hub-Signature', 'sha1=eec3d1c560534e2608bed790b272f4c8507d6500')]
+                       ).status_code == 200
 
-def test_request_headers(client):
-    # https://pytest-flask.readthedocs.io/en/latest/features.html?highlight=headers#request-ctx-request-context
-    res = client.get('/ping', headers=[('X-Something', '42')])
-    assert request.headers['X-Something'] == '42'
+# This triggers a build and pytest doesnt like it. Disabling for now
+#def test_webhook(client, webhook_payload):
+#    assert client.post('/webhook', json=webhook_payload,
+#                       headers=[('X-Hub-Signature', 'sha1=40e44a4cf5c65b61155ad431125bddad88c98b50')]
+#                       ).status_code == 200
