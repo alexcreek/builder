@@ -14,4 +14,3 @@ def setup_logger(name, path=None):
     formatter = logging.Formatter(fmt, datefmt='%Y-%m-%d %H:%M:%S')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    
