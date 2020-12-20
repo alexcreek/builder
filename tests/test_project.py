@@ -6,11 +6,12 @@ from builder.project import Project
 url = 'git@github.com:alexcreek/builder.git'
 commit = '5eeac3d0ce75609214d091a6fa4229c991be5065'
 branch = 'refs/heads/test_fixture'
+status_url = 'https://api.github.com/repos/alexcreek/builder/statuses/{sha}'
 
 # create a new instance of Project for each test
 @pytest.fixture
 def project():
-    p = Project(url, commit, branch)
+    p = Project(url, commit, branch, status_url)
     return p
 
 def test_checkout(project):

@@ -29,7 +29,8 @@ def webhook():
         try:
             build(data['repository']['clone_url'],
                   data['after'],
-                  data['ref'])
+                  data['ref'],
+                  data['statuses_url'])
             return jsonify("{}")
         except KeyError as e:
             logger.error('Paylod missing key %s', e)
@@ -40,8 +41,8 @@ def webhook():
 def ping():
     return jsonify('pong')
 
-def build(url, commit, branch):
-    p = Project(url, commit, branch)
+def build(url, commit, branch, status_url):
+    p = Project(url, commit, branch, status_url)
     logger.info('Build started')
     p.start()
 

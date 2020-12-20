@@ -15,11 +15,12 @@ builder.common.setup_logger(__name__)
 logger = getLogger(__name__)
 
 class Project(threading.Thread):
-    def __init__(self, url, commit, ref):
+    def __init__(self, url, commit, ref, status_url):
         super().__init__()
         self.url = url
         self.commit = commit
         self.branch = ref.split('/')[2]
+        self.status_url = status_url.replace('{sha}', commit)
         self.path = None
         self.manifest = {}
 
@@ -86,4 +87,3 @@ class Project(threading.Thread):
     def cleanup(self):
         logger.info('Deleting project directory: %s', self.path)
         shutil.rmtree(self.path)
-        
