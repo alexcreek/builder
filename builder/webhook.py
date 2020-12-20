@@ -30,7 +30,7 @@ def webhook():
             build(data['repository']['clone_url'],
                   data['after'],
                   data['ref'],
-                  data['statuses_url'])
+                  data['repository']['statuses_url'])
             return jsonify("{}")
         except KeyError as e:
             logger.error('Paylod missing key %s', e)
