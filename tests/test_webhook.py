@@ -38,7 +38,7 @@ def test_webhook_requires_json(client, webhook_payload):
     assert client.post('/webhook').status_code == 400
 
 def test_verify_signature(webhook_payload):
-    req = MockRequest(webhook_payload, {'X-Hub-Signature': 'sha1=25a42fe910908e2b1e7bf5d439c1652adb22efb6'})
+    req = MockRequest(webhook_payload, {'X-Hub-Signature': 'sha1=120a3adf0c692023438e7578eca2daf1275be240'})
     webhook.verify_signature(req)
 
     with pytest.raises(InternalServerError) as e:
