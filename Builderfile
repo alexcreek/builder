@@ -1,2 +1,2 @@
 ---
-build: echo 'it works'
+build: sleep 5
