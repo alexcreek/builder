@@ -4,7 +4,7 @@ import pytest
 from builder.project import Project
 
 url = 'git@github.com:alexcreek/builder.git'
-commit = '5ba9d4087ebe04f4d3d82a7e3078c602a8788c16'
+commit = '6a9d4aeee29927ca4baed7d67f8ba4eb548bf10b'
 branch = 'refs/heads/test_fixture'
 status_url = 'https://api.github.com/repos/alexcreek/builder/statuses/{sha}'
 
