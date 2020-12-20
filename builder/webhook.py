@@ -33,7 +33,7 @@ def webhook():
                   data['repository']['statuses_url'])
             return jsonify("{}")
         except KeyError as e:
-            logger.error('Paylod missing key %s', e)
+            logger.error('Payload missing key %s', e)
             return abort(400)
     return abort(400)
 
