@@ -46,10 +46,6 @@ def build(url, commit, branch, status_url):
     logger.info('Build started')
     p.start()
 
-# this might need to do something someday
-def github_ping(zen, hookid, testurl):
-    logger.info('Github ping recieved')
-
 def verify_signature(payload):
     h = hmac.new(os.environb[b'SECRET'], digestmod='sha1')
     h.update(payload.data)
