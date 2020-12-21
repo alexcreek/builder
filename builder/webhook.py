@@ -29,10 +29,11 @@ def webhook():
         try:
             build(data['repository']['clone_url'],
                   data['after'],
-                  data['ref'])
+                  data['ref'],
+                  data['repository']['statuses_url'])
             return jsonify("{}")
         except KeyError as e:
-            logger.error('Paylod missing key %s', e)
+            logger.error('Payload missing key %s', e)
             return abort(400)
     return abort(400)
 
@@ -40,14 +41,10 @@ def webhook():
 def ping():
     return jsonify('pong')
 
-def build(url, commit, branch):
-    p = Project(url, commit, branch)
+def build(url, commit, branch, status_url):
+    p = Project(url, commit, branch, status_url)
     logger.info('Build started')
     p.start()
-
-# this might need to do something someday
-def github_ping(zen, hookid, testurl):
-    logger.info('Github ping recieved')
 
 def verify_signature(payload):
     h = hmac.new(os.environb[b'SECRET'], digestmod='sha1')

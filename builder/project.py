@@ -6,6 +6,7 @@ import threading
 from logging import getLogger
 from subprocess import Popen, PIPE
 from git import Repo
+import requests
 import yaml
 import builder.common
 
@@ -14,21 +15,28 @@ import builder.common
 builder.common.setup_logger(__name__)
 logger = getLogger(__name__)
 
+if not (os.getenv('GH_USER') or os.getenv('GH_TOKEN')):
+    logger.critical('GH_USER and GH_TOKEN not found in environment')
+    sys.exit(1)
+
 class Project(threading.Thread):
-    def __init__(self, url, commit, ref):
+    def __init__(self, url, commit, ref, status_url):
         super().__init__()
         self.url = url
         self.commit = commit
         self.branch = ref.split('/')[2]
+        self.status_url = status_url.replace('{sha}', commit)
         self.path = None
         self.manifest = {}
 
     def run(self):
+        self.send_status('pending')
         self.log()
         self.checkout()
         self.parse_manifest()
         self.build()
         self.cleanup()
+        self.send_status('success')
 
     def log(self):
         logger.info('Repository: %s', self.url)
@@ -86,4 +94,10 @@ class Project(threading.Thread):
     def cleanup(self):
         logger.info('Deleting project directory: %s', self.path)
         shutil.rmtree(self.path)
-        
+
+    def send_status(self, status):
+        r = requests.post(
+            self.status_url,
+            json={'state': status, 'context': 'Builder'},
+            auth=(os.getenv('GH_USER'), os.getenv('GH_TOKEN')),
+            )
