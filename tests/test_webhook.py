@@ -51,8 +51,7 @@ def test_github_ping(client, github_ping_payload):
                        headers=[('X-Hub-Signature', 'sha1=eec3d1c560534e2608bed790b272f4c8507d6500')]
                        ).status_code == 200
 
-# This triggers a build and pytest doesnt like it. Disabling for now
-#def test_webhook(client, webhook_payload):
-#    assert client.post('/webhook', json=webhook_payload,
-#                       headers=[('X-Hub-Signature', 'sha1=40e44a4cf5c65b61155ad431125bddad88c98b50')]
-#                       ).status_code == 200
+def test_webhook(client, webhook_payload):
+    assert client.post('/webhook', json=webhook_payload,
+                       headers=[('X-Hub-Signature', 'sha1=f72b257a9c1bc1a2c508f06e18d59da780c3412e')]
+                       ).status_code == 200

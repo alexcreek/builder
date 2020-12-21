@@ -25,7 +25,7 @@ def webhook():
         except KeyError as e:
             pass
 
-        # Attempt to build 
+        # Attempt to build
         try:
             build(data['repository']['clone_url'],
                   data['after'],
