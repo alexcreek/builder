@@ -34,9 +34,12 @@ class Project(threading.Thread):
         self.log()
         self.checkout()
         self.parse_manifest()
-        self.build()
+        rc = self.build()
         self.cleanup()
-        self.send_status('success')
+        if rc == 0:
+            self.send_status('success')
+        else:
+            self.send_status('failed')
 
     def log(self):
         logger.info('Repository: %s', self.url)
@@ -83,7 +86,7 @@ class Project(threading.Thread):
 
         logger.info('Running build command: %s', self.manifest['build'])
         p = Popen(self.manifest['build'], stdout=PIPE, shell=True)
-        sout, serr = p.communicate(timeout=1200)
+        sout, _ = p.communicate(timeout=1200)
         logger.info(sout.decode())
         os.chdir(ocwd)
         logger.info('Got return code %i', p.returncode)
