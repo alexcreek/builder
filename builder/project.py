@@ -83,13 +83,15 @@ class Project(threading.Thread):
 
         logger.info('Running build command: %s', self.manifest['build'])
         p = Popen(self.manifest['build'], stdout=PIPE, shell=True)
-        while True:
-            line = p.stdout.readline().rstrip()
-            if not line:
-                break
-            logger.info(line.decode())
-        logger.info('Build complete!')
+        sout, serr = p.communicate(timeout=1200)
+        logger.info(sout.decode())
         os.chdir(ocwd)
+        logger.info('Got return code %i', p.returncode)
+        if p.returncode == 0:
+            logger.info('Build successful')
+        else:
+            logger.info('Build failed')
+        return p.returncode
 
     def cleanup(self):
         logger.info('Deleting project directory: %s', self.path)
