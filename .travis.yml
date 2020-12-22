@@ -1,0 +1,4 @@
+language: python
+  - "3.7"
+install: pipenv install -d
+script: make test
