@@ -15,9 +15,6 @@ import builder.common
 builder.common.setup_logger(__name__)
 logger = getLogger(__name__)
 
-if not (os.getenv('GH_USER') or os.getenv('GH_TOKEN')):
-    logger.critical('GH_USER and GH_TOKEN not found in environment')
-    sys.exit(1)
 
 class Project(threading.Thread):
     def __init__(self, url, commit, ref, status_url):
@@ -101,8 +98,13 @@ class Project(threading.Thread):
         shutil.rmtree(self.path)
 
     def send_status(self, status):
+        if not (os.getenv('GH_USER') and os.getenv('GH_TOKEN')):
+            logger.critical('GH_USER and GH_TOKEN not found in environment')
+            sys.exit(1)
+
         r = requests.post(
             self.status_url,
             json={'state': status, 'context': 'Builder'},
             auth=(os.getenv('GH_USER'), os.getenv('GH_TOKEN')),
             )
+        assert r.ok
